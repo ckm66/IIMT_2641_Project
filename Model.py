@@ -63,7 +63,6 @@ class AuctionRecord:
                 if (char.isdigit()):
                     break
                 currency_symbol += char
-            print(currency_symbol)
 
             price_range = self.information_list[0].split(currency_symbol)
             lower_limit = price_range[1][:-1].replace(",", "")
@@ -71,8 +70,7 @@ class AuctionRecord:
 
             tag_price = self.tag_price.split(currency_symbol)[1].replace(",", "")
             exchange_rate = self.sale_price / int(tag_price)
-            print(exchange_rate)
-
+        
         self.pre_sale_estimate = ((int(lower_limit) + int(upper_limit)) / 2) * exchange_rate
         return
     
@@ -81,9 +79,7 @@ class AuctionRecord:
         if (self.sale_price == None or self.pre_sale_estimate == None):
             return
         difference = self.sale_price - self.pre_sale_estimate
-        self.percentage_difference = (difference / self.pre_sale_estimate)
-
-
+        self.percentage_difference = (difference / self.pre_sale_estimate) * 100
 
     def getMedium(self) -> str:
         """This function finds the medium of the artwork"""
@@ -193,7 +189,7 @@ class AuctionRecord:
         self.getDimension()
         self.getSize()
         self.getSaleDate()
-        self.inflation_adjustment()
+        #self.inflation_adjustment()
         self.getAuctionHouse()
         self.getSaleLocation()
         self.getSaleName()
