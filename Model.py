@@ -5,7 +5,7 @@ import re
 
 class AuctionRecord: 
 
-    def __init__(self, artwork_name: str, artist: str, sale_price: str, tag_price, information_list: str) -> object:
+    def __init__(self, artwork_name: str, artist: str, sale_price: str, tag_price, information_list: str, url: str) -> object:
         self.information_list = information_list
         self.artwork_name = artwork_name # The name of the artwork.
         self.artist = artist
@@ -13,6 +13,8 @@ class AuctionRecord:
         self.sale_price = sale_price  # The actual auction/sale price of the artwork.
         self.pre_sale_estimate = None  # The median price of the estimated sale price range.
         self.percentage_difference = None
+        self.sale_price_after_inflation_adjustment = None  # The actual auction/sale price of the artwork.
+        self.pre_sale_estimate_after_inflation_adjustment = None  # The median price of the estimated sale price range.
         self.medium = None # The type of medium to which the artwork belongs.
         self.dimensions = None  # The dimensions of the artwork.
         self.size = None # The size group that the artwork belongs to (Self defined)
@@ -21,7 +23,7 @@ class AuctionRecord:
         self.sale_location = None # The location where the auction took place.
         self.sale_name = None # The name or title associated with the sale event.
         self.lot = None # The lot number assigned to the artwork in the auction.
-        self.url = None # The URL or web link associated with the artwork or auction.
+        self.url = url # The URL or web link associated with the artwork or auction.
         self.fail_flag = False
     
     def isNull(self, data) -> bool:
@@ -36,17 +38,20 @@ class AuctionRecord:
         # If sales price is not avaliable -> Null
         if not any(char.isdigit() for char in self.sale_price):
             self.fail_flag = True
+            print("Sale price is not availiable")
             return
         
         if self.sale_price[:2] == "US":
             self.sale_price = int(''.join(filter(str.isdigit, self.sale_price)))
+            print("The sale price of this artwork is", self.sale_price)
             return
 
 
     def getEstimatePrice(self) -> None:
         """This function find the median price of the estimated auction price range"""
         # If estimated price is not availiable -> Return
-        if self.isNull(self.information_list[0]) or (not any(char.isdigit() for char in self.information_list[0])) or type(self.sale_price ) == str:
+        if self.isNull(self.information_list[0]) or (not any(char.isdigit() for char in self.information_list[0])) or type(self.sale_price) == str:
+            print("Estimate Price is not available for this artwork")
             return
         
         # If the estimate price is written in US Dollar -> Find Upper and Lower Limit -> Add both and divide by two
@@ -119,7 +124,7 @@ class AuctionRecord:
         
         pattern_2 = r"^\d+(\.\d+)? cm$"
         if (re.match(pattern_2, self.dimensions) is not None):
-            value = self.dimensions[:-4]
+            value = float(self.dimensions[:-4])
 
             if (value > 100 or value > 100):
                 self.size = "Large"
@@ -149,8 +154,8 @@ class AuctionRecord:
             return
         inflation_rate = 1.032
         number_of_year = datetime.now().year - self.sales_date.year 
-        self.pre_sale_estimate *= math.pow(inflation_rate, number_of_year)
-        self.sale_price *= math.pow(inflation_rate, number_of_year)
+        self.pre_sale_estimate_after_inflation_adjustment *= math.pow(inflation_rate, number_of_year)
+        self.sale_price_after_inflation_adjustment *= math.pow(inflation_rate, number_of_year)
 
     def getAuctionHouse(self) -> str:
         """This function finds the auction house that auction happen"""
@@ -169,14 +174,14 @@ class AuctionRecord:
 
     def getSaleName(self) -> str:
         """This function finds that sales name of the auction"""
-        if (self.isNull(self.information_list[6])):
+        if (self.information_list[6] == "----"):
             self.sale_name = None
             return
         self.sale_name = self.information_list[6]
 
     def getLot(self) -> str:
         """This function finds the lot of the auction"""
-        if (self.isNull(self.information_list[7])):
+        if self.information_list[7] == "----":
             self.lot = None
             return
         self.lot = self.information_list[7]

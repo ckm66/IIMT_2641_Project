@@ -77,7 +77,7 @@ class WebScrapy:
 
     def createAuctionRecord(self):
         artist, artwork_name, sale_price, tag_price, information_list = self.getArtworkDetails()
-        auction_record = AuctionRecord(artwork_name, artist, sale_price, tag_price, information_list)
+        auction_record = AuctionRecord(artwork_name, artist, sale_price, tag_price, information_list, url = self.driver.current_url)
         auction_record.transform()
         return auction_record, auction_record.fail_flag
 

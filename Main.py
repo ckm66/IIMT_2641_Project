@@ -8,7 +8,7 @@ def getAuctionRecord(index):
     WebEngine.insertToMongoDB(auction_record, invalid_flag)
 
 def main():
-    getAuctionRecord(6588251)
+    getAuctionRecord(6997635)
 
 if __name__ == "__main__":
     main()
