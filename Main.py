@@ -1,14 +1,17 @@
 from WebScrapyEngine import WebScrapy
 
-def getAuctionRecord(index):
+def startDriver():
     WebEngine = WebScrapy()
     WebEngine.login()
-    WebEngine.goto(url = f"https://www.artsy.net/auction-result/{index}")
-    auction_record, invalid_flag = WebEngine.createAuctionRecord()
-    WebEngine.insertToMongoDB(auction_record, invalid_flag)
+    for index in range(4000103, 5000000):
+        fail_to_reach = WebEngine.goto(url = f"https://www.artsy.net/auction-result/{index}")
+        if fail_to_reach:
+            continue
+        auction_record, invalid_flag = WebEngine.createAuctionRecord()
+        WebEngine.insertToMongoDB(auction_record, invalid_flag)
 
 def main():
-    getAuctionRecord(6997635)
+    startDriver()
 
 if __name__ == "__main__":
     main()

@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from Model import AuctionRecord
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -35,8 +36,12 @@ class WebScrapy:
         login_button = self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         login_button.click()
 
-        wait = WebDriverWait(self.driver, 10)
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="Box-sc-15se88d-0 Text-sc-18gcpao-0 MyCollectionArtworkSidebarMetadata__WrappedText-sc-5mms7r-0 eXbAnU jYhtRb cqzlmg"]')))
+        try:
+            WebDriverWait(self.driver, 10).until(lambda driver: self.driver.find_element(By.CSS_SELECTOR, 'div[class="Box-sc-15se88d-0 Text-sc-18gcpao-0 MyCollectionArtworkSidebarMetadata__WrappedText-sc-5mms7r-0 eXbAnU jYhtRb cqzlmg"]'))
+            return False
+        except TimeoutException:
+            print("404")
+            return True
 
 
     def goto(self, url: str) -> None:
